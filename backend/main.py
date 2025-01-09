@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
 # LangChain 相关
-from langchain import OpenAI
+from langchain_community.chat_models import ChatZhipuAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 
@@ -17,10 +17,13 @@ app = Flask(__name__)
 # 若表尚未创建，在这里执行表创建
 Base.metadata.create_all(bind=engine)
 
-# 初始化大模型 (OpenAI 仅作示例，可换其他模型/Key)
-openai_api_key = os.getenv("OPENAI_API_KEY", "")
-llm = OpenAI(openai_api_key=openai_api_key, temperature=0.3)
-
+# 初始化大模型 (智谱 API)
+zhipu_api_key = os.getenv("ZHIPU_API_KEY", "")  # 从环境变量获取 API Key
+llm = ChatZhipuAI(
+    model="glm-4",  # 选择智谱模型，如 chatglm_pro
+    temperature=0.3,      # 控制生成文本的随机性
+    api_key=zhipu_api_key # 智谱 API 密钥
+)
 # --------------【1】解题提示生成 Chain --------------
 prompt_template_for_hint = """
 你是一名经验丰富的中学数学老师，善于给学生提供分步解题提示。

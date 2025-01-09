@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 
 # LangChain 相关
@@ -133,7 +133,7 @@ def verify_answer():
 
 @app.route("/")
 def index():
-    return "LangChain Math Tutor Backend with SQLite is running."
+    return send_from_directory("../frontend", "index.html")
 
 
 if __name__ == "__main__":

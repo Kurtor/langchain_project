@@ -1,5 +1,5 @@
 Flask==2.2.5
-langchain==0.0.XXX
-openai==0.XX.X
+langchain==0.0.220
+openai==0.27.0
 python-dotenv==1.0.0
-SQLAlchemy==2.0.XX
+SQLAlchemy==2.0.9

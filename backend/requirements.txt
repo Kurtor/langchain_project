@@ -1,0 +1,5 @@
+Flask==2.2.5
+langchain==0.0.XXX
+openai==0.XX.X
+python-dotenv==1.0.0
+SQLAlchemy==2.0.XX

@@ -51,6 +51,56 @@ verify_prompt = PromptTemplate(
 )
 verify_chain = LLMChain(llm=llm, prompt=verify_prompt)
 
+from sympy import sympify, Symbol, solve
+import re
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
+import base64
+
+
+@app.route("/api/plot_equation", methods=["POST"])
+def plot_equation():
+    data = request.get_json()
+    equation = data.get("equation", "").strip()
+    if not equation:
+        return jsonify({"error": "No equation provided"}), 400
+
+    # 预处理方程，将 '2x' 转换为 '2*x'
+    equation = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', equation)
+
+    # 分割方程为两个函数
+    try:
+        left_expr, right_expr = map(sympify, equation.split('='))
+    except Exception as e:
+        return jsonify({"error": f"Invalid equation: {str(e)}"}), 400
+
+    x = Symbol('x')
+    x_vals = np.linspace(-10, 10, 400)
+    y_left = [left_expr.subs(x, val) for val in x_vals]
+    y_right = [right_expr.subs(x, val) for val in x_vals]
+
+    # 求交点
+    intersection = solve(left_expr - right_expr, x)
+    intersection_y = [left_expr.subs(x, val) for val in intersection]
+
+    plt.figure()
+    plt.plot(x_vals, y_left, label='Left Function')
+    plt.plot(x_vals, y_right, label='Right Function')
+    plt.scatter(intersection, intersection_y, color='red', zorder=5, label='Intersection')
+    plt.title(f"Graph of {equation}")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.legend()
+
+    # 将图像保存到内存中
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close()
+
+    return jsonify({"image": image_base64}), 200
 
 @app.route("/api/generate_hint", methods=["POST"])
 def generate_hint():

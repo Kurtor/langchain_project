@@ -7,7 +7,7 @@
   <style>
     /* 页面样式 */
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial, sans-serif; 
       margin: 0;
       padding: 0;
       background: #f4f8fb;
@@ -91,6 +91,13 @@
       <button id="verifyAnswerBtn">提交答案</button>
       <div id="verifyResult" class="result"></div>
     </div>
+
+      <!-- 生成方程图像 -->
+    <div class="section">
+      <h2>3. 生成方程图像</h2>
+      <button id="plotEquationBtn">生成图像</button>
+      <div id="equationPlot" class="result"></div>
+    </div>
   </div>
 
   <script>
@@ -168,6 +175,39 @@
         }
       } catch (error) {
         verifyResult.textContent = '验证失败，请检查网络连接或联系管理员。';
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('plotEquationBtn').addEventListener('click', async () => {
+      const questionInput = document.getElementById('questionInput');
+      const equationPlot = document.getElementById('equationPlot');
+
+      const equation = questionInput.value.trim();
+      if (!equation) {
+        equationPlot.textContent = '请输入方程内容！';
+        return;
+      }
+
+      // 显示加载状态
+      equationPlot.textContent = '正在生成图像，请稍候...';
+
+      try {
+        const response = await fetch('/api/plot_equation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ equation: equation })
+        });
+        const data = await response.json();
+
+        if (data.error) {
+          equationPlot.textContent = `错误: ${data.error}`;
+        } else {
+          // 显示图像
+          equationPlot.innerHTML = `<img src="data:image/png;base64,${data.image}" alt="Equation Plot" />`;
+        }
+      } catch (error) {
+        equationPlot.textContent = '生成图像失败，请检查网络连接或联系管理员。';
         console.error('Error:', error);
       }
     });

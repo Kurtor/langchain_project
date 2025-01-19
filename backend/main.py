@@ -102,6 +102,8 @@ def plot_equation():
 
     return jsonify({"image": image_base64}), 200
 
+import time
+
 @app.route("/api/generate_hint", methods=["POST"])
 def generate_hint():
     data = request.get_json()
@@ -111,6 +113,9 @@ def generate_hint():
 
     # 1. 调LangChain获取解题提示
     hint_result = hint_chain.run(question=question_text)
+
+    # 在这里加上延时，避免触发 API 的请求频率限制
+    time.sleep(1)  # 这里的 1 秒可以根据需求调整
 
     # 2. 写入数据库
     db = SessionLocal()
@@ -134,6 +139,7 @@ def generate_hint():
     }), 200
 
 
+
 @app.route("/api/verify_answer", methods=["POST"])
 def verify_answer():
     data = request.get_json()
@@ -149,9 +155,10 @@ def verify_answer():
         answer=student_answer
     ).strip()
 
+    # 在这里加上延时，避免触发 API 的请求频率限制
+    time.sleep(1)  # 这里的 1 秒可以根据需求调整
+
     # 2. 查找对应 question_id（简单做法：根据 question_text 匹配最新一条）
-    #   也可以在generate_hint返回时就把question_id传给前端，再由前端
-    #   提交answer时附带question_id，这样更准确。
     db = SessionLocal()
     try:
         # 先根据题目文本找到一个 QuestionRecord（此处简化为直接取最新）
@@ -179,6 +186,7 @@ def verify_answer():
         "student_answer": student_answer,
         "verification": verification_result
     }), 200
+
 
 
 @app.route("/")

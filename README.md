@@ -533,31 +533,40 @@ Flask 将在 `http://127.0.0.1:5000` 启动服务器。首次运行时，会在�
 
 ---
 
-## 云端部署（以阿里云 ECS 为例）
+## 云端部署
 
-如果你需要在云端上线，以下是最简单可行的一种方式（适合课程演示/小规模项目）：
+### 1. 配置 RDS PostgreSQL 实例
 
-### 1. 购买并初始化 ECS
+1. **登录阿里云管理控制台**，进入 **RDS 管理控制台**。
+2. 选择 **PostgreSQL 数据库实例**，获取连接信息：
+   - **公网 IP**：pgm-bp1ydqzg4937odnzxo.pg.rds.aliyuncs.com
+   - **数据库名称**：langchain
+   - **用户名与密码**：gimpyo  Jinbiao0416
 
-1. 登录 [阿里云](https://www.aliyun.com/)，在控制台创建或购买一台 **ECS**（弹性云服务器）。  
-2. 选择**入门配置**（例如1核2G），操作系统可选 Ubuntu 或 CentOS。  
-3. 购买后查看“实例详情”，获取 **公网 IP**，例如 `123.45.67.89`。  
-4. 使用 **SSH** 连接 ECS：  
-   ```bash
-   ssh root@123.45.67.89
-   ```
-   如果是第一次使用，可能需要修改服务器初始密码或设置 SSH Key。
+### 2. 配置 RDS 安全组
 
-### 2. 安装基础环境
+在阿里云控制台：
 
-以 **Ubuntu** 为例：
+1. 进入 **RDS 安全组设置**。
+2. 确保允许你的本地 IP 地址通过 5432 端口访问 PostgreSQL。
+
+### 3. 本地 PostgreSQL 客户端连接
+
+你可以直接通过本地的 PostgreSQL 客户端工具（如 `psql` 或 `pgAdmin`）来连接云端数据库。
+
+#### 使用 `psql` 命令行连接：
+
 ```bash
-sudo apt-get update -y
-sudo apt-get upgrade -y
-sudo apt-get install python3 python3-pip git -y
-# (可选) sudo apt-get install python3-venv -y
-# (可选) sudo apt-get install nginx -y
+psql -h <RDS 公网 IP> -p 5432 -U <用户名> -d <数据库名称>
 ```
+
+例如：
+
+```bash
+psql -h 123.45.67.89 -p 5432 -U myuser -d mydatabase
+```
+
+系统会提示你输入密码。
 
 ### 3. 上传并配置项目
 
